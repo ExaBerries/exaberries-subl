@@ -1,0 +1,5 @@
+<snippet>
+	<content><![CDATA[\begin{pmatrix}$1\\\\$0\end{pmatrix}]]></content>
+	<tabTrigger>vec2</tabTrigger>
+	<scope>text.tex.latex</scope>
+</snippet>
