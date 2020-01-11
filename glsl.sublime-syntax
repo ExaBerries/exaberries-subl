@@ -1,0 +1,68 @@
+%YAML 1.2
+---
+name: GLSL
+file_extensions: [frag, vert]
+scope: source.glsl
+variables:
+  types: void|float|double|int|vec2|vec3|vec4|mat3|mat4|sampler2D|sampler2DShadow|bool
+
+contexts:
+  main:
+    - match: //.+
+      scope: comment.line.source.glsl
+    - match: \b(in|out|uniform|attribute|varying|flat|for|if|else|return|layout)\b
+      scope: keyword.control.glsl
+    - match: \b(location)\b
+      scope: storage.modifier.glsl
+    - match: \b({{types}})\s+([a-zA-Z_.:]+[.:])?([a-zA-Z_]\w*)\s*(\()([^)]*)(\))
+      scope: meta.function.glsl
+      captures:
+        1: keyword.control.glsl
+        3: entity.name.function.glsl
+        5: variable.parameter.function.glsl
+    - match: \b(struct)\s+([a-zA-Z0-9]+)
+      captures:
+        1: keyword.control.glsl
+        2: entity.name.struct.glsl
+    - match: \b(?i:{{types}})\b
+      scope: storage.type.glsl
+    - match: \b(normalize|texture2D|texture|textureProj|clamp|dot|distance|abs|max|min|sqrt|mix)\b(\()
+      scope: meta.function.glsl
+      captures:
+        1: support.function.glsl
+    - match: \b(gl_FragColor|gl_Position|gl_Normal|gl_FragCoord)\b
+      scope: constant.language.glsl
+    - match: \=|\<|\>
+      scope: keyword.operator.assignment.glsl
+    - match: \*|\/|\^|\+|\-
+      scope: keyword.operator.arithmatic.glsl
+    - match: '\.'
+      scope: keyword.delimiter.glsl
+    - match: \b(true|false)\b
+      scope: constant.language.glsl
+    - match: \b(-?(\d|\.)+)\b
+      scope: constant.numeric.glsl
+    - match: '"'
+      push: string
+    - match: ;|{|}
+      scope: punctuation.terminator.glsl
+    - match: .$
+      scope: invalid.illegal.glsl
+    - match: \#
+      scope: keyword.control.opencl
+      push: preprocessor
+
+  string:
+    - meta_scope: string.quoted.glsl
+    - match: \\.
+      scope: constant.character.escape.glsl
+    - match: '"'
+      pop: true
+
+  preprocessor:
+    - match: define|if|else|ifdef|undef|endif|version
+      scope: keyword.control.glsl
+    - match: \b(-?(\d|\.)+)\b
+      scope: constant.numeric.glsl
+    - match: $
+      pop: true
