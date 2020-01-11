@@ -1,0 +1,89 @@
+%YAML 1.2
+---
+name: OpenCL
+file_extensions: [cl]
+scope: source.opencl
+variables:
+  types: void|float|float2|float4|half|double|double2|double4|double8|double16|uint|int|char|uchar|bool|short|ushort|long|ulong|int2
+
+contexts:
+  main:
+    - match: //.+
+      scope: comment.line.source.opencl
+    - match: /\*
+      push: comment
+    - match: \b({{types}})\s+([a-zA-Z0-9\*_]+)\(
+      captures:
+        1: storage.type.opencl
+        2: entity.name.function.opencl
+      push: function
+    - match: \b((__[a-zA-Z0-9]+)|struct|if|else|switch|case|for|while|do-while|kernel|global|unsigned|static|const|constant|return)\b
+      scope: keyword.control.opencl
+    - match: \b(?i:{{types}})\b
+      scope: storage.type.opencl
+    - match: \b(dot|crs|floor|ceil|get_global_id)\b(\()
+      push: brackets
+      captures:
+        1: support.function.opencl
+    - match: \=|\>|\<
+      scope: keyword.operator.assignment.opencl
+    - match: \*|\/|\^|\&|\+|\-
+      scope: keyword.operator.arithmatic.opencl
+    - match: '\.'
+      scope: keyword.delimiter.opencl
+    - match: \b(true|false)\b
+      scope: constant.language.opencl
+    - match: \b(-?(\d|\.)+)f?\b
+      scope: constant.numeric.opencl
+    - match: '"'
+      push: string
+    - match: ;|{|}|,
+      scope: punctuation.terminator.opencl
+    - match: .$
+      scope: invalid.illegal.opencl
+    - match: \(
+      push: brackets
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end
+    - match: \#
+      scope: keyword.control.opencl
+      push: preprocessor
+
+  comment:
+    - meta_scope: comment.line.source.opencl
+    - match: \*/
+      pop: true
+
+  string:
+    - meta_scope: string.quoted.opencl
+    - match: \\.
+      scope: constant.character.escape.opencl
+    - match: '"'
+      pop: true
+
+  function:
+    - meta_scope: meta.function.opencl
+    - match: \b((_+[a-zA-Z0-9]+)|global|const|unsigned)\b
+      scope: keyword.control.opencl
+    - match: ((?:{{types}})\*?)\s+([a-zA-Z0-9\*_]+)
+      captures:
+        1: storage.type.opencl
+        2: variable.parameter.function.opencl
+    - match: \s*\{
+      scope: punctuation.terminator.opencl
+      pop: true
+
+  brackets:
+    - match: \)
+      pop: true
+    - include: main
+
+  preprocessor:
+    - match: define|if|else|ifdef|undef|endif
+      scope: keyword.control.opencl
+    - match: ([a-zA-Z_]+)
+      scope: meta.preprocessor.opencl
+    - match: \b( -?(\d|\.)+)f?\b
+      scope: constant.numeric.opencl
+    - match: $
+      pop: true
