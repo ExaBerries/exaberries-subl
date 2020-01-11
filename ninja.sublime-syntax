@@ -1,0 +1,62 @@
+%YAML 1.2
+---
+name: Ninja
+file_extensions: [ninja]
+scope: source.ninja
+
+contexts:
+  prototype:
+    - match: \#.+
+      scope: comment.line.source.ninja
+
+  main:
+    - match: ^\s*(ninja_required_version|default|subninja|include)\b\s
+      scope: keyword.ninja
+    - match: ^(rule)\s+([a-zA-Z0-9.\-_@/\\$|]+)
+      push: rule
+      captures:
+        1: keyword.ninja
+        2: entity.name.function.ninja
+    - match: '^(build)\s+([a-zA-Z0-9.\-_@/\\\s$|]+):'
+      push: build
+      captures:
+        1: keyword.ninja
+        2: entity.name.function.ninja
+        3: entity.name.function.ninja
+    - match: \d+\.\d+\.\d+
+      scope: constant.numeric.ninja
+
+  rule:
+    - match: '^\s*$'
+      pop: true
+    - match: ^\w
+      pop: true
+    - match: \s+(command|depfile|deps|msvc_deps_prefix|description|generator|restat|rspfile|rspfile_context)\s+=
+      captures:
+        1: keyword.ninja
+    - match: \$(in|out)
+      scope: constant.language.ninja
+    - match: \$[a-zA-Z0-9_-]+
+      scope: support.other.variable.ninja
+
+  build:
+    - match: '^\s*$'
+      pop: true
+    - match: ^\w
+      pop: true
+    - match: \$$
+      push: lineskip
+    - match: (phony)\s*([a-zA-Z0-9_\-@/\\.\s]+)?
+      captures:
+        1: keyword.ninja
+        2: entity.name.function.ninja
+    - match: \s+(pool)\s+=
+      captures:
+        1: keyword.ninja
+    - match: \s+([a-zA-Z0-9-_]+)\s+=
+      captures:
+        1: support.other.variable.ninja
+
+  lineskip:
+    - match: $
+      pop: true
