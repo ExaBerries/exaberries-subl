@@ -8,22 +8,32 @@ contexts:
   prototype:
     - match: \#.+
       scope: comment.line.source.ninja
+    - match: \$[a-zA-Z0-9_-]+
+      scope: support.other.variable.ninja
+    - match: \$$
+      scope: keyword.ninja
+      push: lineskip
 
   main:
-    - match: ^\s*(ninja_required_version|default|subninja|include)\b\s
+    - match: ^\s*(ninja_required_version|ninja_dyndep_version|builddir|default|subninja|include)\b\s
       scope: keyword.ninja
     - match: ^(rule)\s+([a-zA-Z0-9.\-_@/\\$|]+)
       push: rule
       captures:
         1: keyword.ninja
-        2: entity.name.function.ninja
-    - match: '^(build)\s+([a-zA-Z0-9.\-_@/\\\s$|]+):'
+        2: constant.language.ninja
+    - match: '^(build)\s+([a-zA-Z0-9.\-_@/\\\s$|]+):\s+(?:(phony)|(dyndep)|([a-zA-Z0-9][a-zA-Z0-9_-]*))'
       push: build
       captures:
         1: keyword.ninja
         2: entity.name.function.ninja
-        3: entity.name.function.ninja
-    - match: \d+\.\d+\.\d+
+        3: keyword.ninja
+        4: keyword.ninja
+        5: constant.language.ninja
+    - match: ^([a-zA-Z0-9-_]+)\s+=
+      captures:
+        1: support.other.variable.ninja
+    - match: \b\d+(?:\.\d+(?:\.\d+)?)?\b
       scope: constant.numeric.ninja
 
   rule:
@@ -31,25 +41,17 @@ contexts:
       pop: true
     - match: ^\w
       pop: true
-    - match: \s+(command|depfile|deps|msvc_deps_prefix|description|generator|restat|rspfile|rspfile_context)\s+=
+    - match: \s+(command|depfile|deps|msvc_deps_prefix|description|generator|restat|rspfile|rspfile_context|pool|dyndep)\s+=
       captures:
         1: keyword.ninja
     - match: \$(in|out)
       scope: constant.language.ninja
-    - match: \$[a-zA-Z0-9_-]+
-      scope: support.other.variable.ninja
 
   build:
     - match: '^\s*$'
       pop: true
     - match: ^\w
       pop: true
-    - match: \$$
-      push: lineskip
-    - match: (phony)\s*([a-zA-Z0-9_\-@/\\.\s]+)?
-      captures:
-        1: keyword.ninja
-        2: entity.name.function.ninja
     - match: \s+(pool)\s+=
       captures:
         1: keyword.ninja
@@ -58,5 +60,5 @@ contexts:
         1: support.other.variable.ninja
 
   lineskip:
-    - match: $
+    - match: ^
       pop: true
